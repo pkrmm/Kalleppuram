@@ -1,0 +1,15 @@
+{
+  "zone": "Kalleppuram",
+  "target": 600,
+  "achieved": 88,
+  "achievedPercent": 14.60,
+  "remaining": 512,
+  "remainingPercent": 85.41,
+  "benchmarkValue": 138,
+  "progressPercent": 63.25,
+  "salesTillDate": 88,
+  "vsPM": { "value": 28, "pct": 209 },
+  "vsPY": { "value": 33, "pct": 163 },
+  "requiredRunRate": 25.62,
+  "lastUpdated": "2026-09-07T06:00:00+05:30"
+}

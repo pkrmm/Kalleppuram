@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peekay Rolling Mills — Zone Sales Gauge</title>
+<style>
+  :root{
+    --ink:#26282b;
+    --muted:#8a8f96;
+    --card-bg:#ffffff;
+    --page-bg:#f4f5f7;
+    --border:#e6e7ea;
+    --red:#d5372e;
+    --red-soft:#fdeceb;
+    --grey-track:#eceef1;
+    --green:#2e9e5b;
+    --shadow: 0 1px 3px rgba(20,20,30,0.06), 0 8px 24px rgba(20,20,30,0.05);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--page-bg);
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    color:var(--ink);
+    padding:24px;
+  }
+  .card{
+    width:100%;
+    max-width:420px;
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:20px 22px 16px;
+  }
+  .card-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    margin-bottom:2px;
+  }
+  .zone-name{
+    font-size:15px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .progress-badge{
+    text-align:right;
+    font-size:11px;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--red);
+    flex:none;
+  }
+  .progress-value{
+    font-size:13px;
+    font-weight:700;
+    color:var(--red);
+    margin-top:2px;
+  }
+  .gauge-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:4px;
+  }
+  .side-stat{
+    text-align:center;
+    width:80px;
+  }
+  .side-stat .pill{
+    display:inline-block;
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:20px;
+    font-weight:700;
+  }
+  .pill.done{ background:var(--red); color:#fff; }
+  .pill.remaining{ background:var(--grey-track); color:#9a9fa6; }
+  .side-stat .pct{
+    font-size:11px;
+    font-weight:600;
+    margin-top:6px;
+  }
+  .pct.done-pct{ color:var(--red); }
+  .pct.remaining-pct{ color:#9a9fa6; }
+  .side-stat .label{
+    font-size:10px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .gauge-wrap{
+    position:relative;
+    width:190px;
+    flex:none;
+  }
+  .gauge-center-label{
+    position:absolute;
+    left:50%;
+    top:62%;
+    transform:translate(-50%,-50%);
+    font-size:34px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .benchmark-label{
+    position:absolute;
+    font-size:12px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .stats-footer{
+    display:flex;
+    border-top:1px solid var(--border);
+    margin-top:14px;
+    padding-top:12px;
+  }
+  .stats-footer .col{
+    flex:1;
+    text-align:center;
+  }
+  .stats-footer .col + .col{
+    border-left:1px solid var(--border);
+  }
+  .stats-footer .val{
+    font-size:18px;
+    font-weight:700;
+  }
+  .stats-footer .lbl{
+    font-size:11px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .delta{
+    font-size:11px;
+    font-weight:600;
+    color:var(--green);
+  }
+  .updated{
+    text-align:center;
+    font-size:10px;
+    color:#c3c6cb;
+    margin-top:12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <div class="card-head">
+    <div class="zone-name" id="zoneName">—</div>
+    <div>
+      <div class="progress-badge"><span class="dot"></span>Progress %</div>
+      <div class="progress-value" id="progressPercent">—</div>
+    </div>
+  </div>
+
+  <div class="gauge-row">
+    <div class="side-stat">
+      <div class="pill done" id="achieved">—</div>
+      <div class="pct done-pct" id="achievedPercent">—</div>
+      <div class="label">TG Completed</div>
+    </div>
+
+    <div class="gauge-wrap">
+      <svg viewBox="0 0 200 120" width="190" height="114">
+        <path id="trackArc" d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="#eceef1" stroke-width="16" stroke-linecap="round"/>
+        <path id="fillArc" d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="#d5372e" stroke-width="16" stroke-linecap="round"/>
+        <line id="needleLine" x1="100" y1="100" x2="100" y2="30" stroke="#c98a2e" stroke-width="2"/>
+      </svg>
+      <div class="benchmark-label" id="benchmarkLabel">—</div>
+      <div class="gauge-center-label" id="targetLabel">—</div>
+    </div>
+
+    <div class="side-stat">
+      <div class="pill remaining" id="remaining">—</div>
+      <div class="pct remaining-pct" id="remainingPercent">—</div>
+      <div class="label">TG Remaining</div>
+    </div>
+  </div>
+
+  <div class="stats-footer">
+    <div class="col">
+      <div class="val" id="salesTillDate">—</div>
+      <div class="lbl">Sales Till Date</div>
+    </div>
+    <div class="col">
+      <div class="lbl">vs PM : <span id="vsPM">—</span></div>
+      <div class="lbl" style="margin-top:6px;">vs PY : <span id="vsPY">—</span></div>
+    </div>
+    <div class="col">
+      <div class="val" id="requiredRunRate">—</div>
+      <div class="lbl">Required Run Rate</div>
+    </div>
+  </div>
+
+  <div class="updated" id="updated"></div>
+</div>
+
+<script>
+async function loadData(){
+  try{
+    const res = await fetch('data.json?ts=' + Date.now()); // cache-bust so viewers always see today's numbers
+    const d = await res.json();
+    render(d);
+  }catch(e){
+    document.getElementById('zoneName').textContent = 'Unable to load data';
+    console.error(e);
+  }
+}
+
+function render(d){
+  document.getElementById('zoneName').textContent = d.zone;
+  document.getElementById('progressPercent').textContent = d.progressPercent.toFixed(2) + '%';
+
+  document.getElementById('achieved').textContent = d.achieved;
+  document.getElementById('achievedPercent').textContent = d.achievedPercent.toFixed(2) + '%';
+
+  document.getElementById('remaining').textContent = d.remaining;
+  document.getElementById('remainingPercent').textContent = d.remainingPercent.toFixed(2) + '%';
+
+  document.getElementById('targetLabel').textContent = d.target;
+  document.getElementById('salesTillDate').textContent = d.salesTillDate;
+  document.getElementById('requiredRunRate').textContent = d.requiredRunRate.toFixed(2);
+
+  const pmUp = d.vsPM.pct >= 0;
+  const pyUp = d.vsPY.pct >= 0;
+  document.getElementById('vsPM').innerHTML = d.vsPM.value + ' <span class="delta">(' + (pmUp?'▲':'▼') + ' ' + Math.abs(d.vsPM.pct) + '%)</span>';
+  document.getElementById('vsPY').innerHTML = d.vsPY.value + ' <span class="delta">(' + (pyUp?'▲':'▼') + ' ' + Math.abs(d.vsPY.pct) + '%)</span>';
+
+  // ---- Gauge geometry ----
+  const cx = 100, cy = 100, r = 80;
+  const trackPath = document.getElementById('trackArc');
+  const fillPath = document.getElementById('fillArc');
+  const half = Math.PI * r; // length of the semicircle
+
+  const achievedFraction = Math.min(d.achieved / d.target, 1);
+  fillPath.setAttribute('stroke-dasharray', (achievedFraction*half) + ' ' + half);
+
+  // needle / benchmark marker pointing to benchmarkValue on the 0..target scale
+  const benchmarkFraction = Math.min(d.benchmarkValue / d.target, 1);
+  const angleDeg = 180 - (benchmarkFraction * 180); // 180 = left(0), 0 = right(target)
+  const angleRad = angleDeg * Math.PI / 180;
+  const needleLen = 62;
+  const tipX = cx + needleLen * Math.cos(angleRad);
+  const tipY = cy - needleLen * Math.sin(angleRad);
+  const needle = document.getElementById('needleLine');
+  needle.setAttribute('x2', tipX);
+  needle.setAttribute('y2', tipY);
+
+  // benchmark label position, just outside the tip
+  const labelX = cx + (needleLen+14) * Math.cos(angleRad);
+  const labelY = cy - (needleLen+14) * Math.sin(angleRad);
+  const wrapWidth = 190, wrapHeight = 114;
+  const scaleX = wrapWidth/200, scaleY = wrapHeight/120;
+  const lbl = document.getElementById('benchmarkLabel');
+  lbl.textContent = d.benchmarkValue;
+  lbl.style.left = (labelX*scaleX) + 'px';
+  lbl.style.top = (labelY*scaleY) + 'px';
+  lbl.style.transform = 'translate(-50%,-50%)';
+
+  if(d.lastUpdated){
+    const dt = new Date(d.lastUpdated);
+    document.getElementById('updated').textContent = 'Last updated: ' + dt.toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  }
+}
+
+loadData();
+</script>
+
+</body>
+</html>

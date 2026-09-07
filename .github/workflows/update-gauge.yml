@@ -1,1 +1,23 @@
-name: Update Kalleppuram Gauge on: repository_dispatch: types: [update-gauge] jobs: update-json: runs-on: ubuntu-latest steps: - uses: actions/checkout@v4 - name: Write JSON payload to file run: | echo '${{ toJson(github.event.client_payload.data) }}' > data.json - name: Commit and push run: | git config user.name "github-actions[bot]" git config user.email "github-actions[bot]@users.noreply.github.com" git add data.json git diff --staged --quiet || git commit -m "Daily gauge update" git push
+name: Update Kalleppuram Gauge
+
+on:
+  repository_dispatch:
+    types: [update-gauge]
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write JSON payload to file
+        run: |
+          echo '${{ toJson(github.event.client_payload.data) }}' > data.json
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git diff --staged --quiet || git commit -m "Daily gauge update"
+          git push

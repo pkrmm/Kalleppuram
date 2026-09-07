@@ -221,17 +221,17 @@ async function loadData(){
 
 function render(d){
   document.getElementById('zoneName').textContent = d.zone;
-  document.getElementById('progressPercent').textContent = d.progressPercent.toFixed(2) + '%';
+  document.getElementById('progressPercent').textContent = Number(d.progressPercent).toFixed(2) + '%';
 
   document.getElementById('achieved').textContent = d.achieved;
-  document.getElementById('achievedPercent').textContent = d.achievedPercent.toFixed(2) + '%';
+  document.getElementById('achievedPercent').textContent = Number(d.achievedPercent).toFixed(2) + '%';
 
   document.getElementById('remaining').textContent = d.remaining;
-  document.getElementById('remainingPercent').textContent = d.remainingPercent.toFixed(2) + '%';
+  document.getElementById('remainingPercent').textContent = Number(d.remainingPercent).toFixed(2) + '%';
 
   document.getElementById('targetLabel').textContent = d.target;
   document.getElementById('salesTillDate').textContent = d.salesTillDate;
-  document.getElementById('requiredRunRate').textContent = d.requiredRunRate.toFixed(2);
+  document.getElementById('requiredRunRate').textContent = Number(d.requiredRunRate).toFixed(2);
 
   const pmUp = d.vsPM.pct >= 0;
   const pyUp = d.vsPY.pct >= 0;

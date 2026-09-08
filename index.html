@@ -1,282 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Peekay Rolling Mills — Zone Sales Gauge</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Peekay Sales Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-  :root{
-    --ink:#26282b;
-    --muted:#8a8f96;
-    --card-bg:#ffffff;
-    --page-bg:#f4f5f7;
-    --border:#e6e7ea;
-    --red:#d5372e;
-    --red-soft:#fdeceb;
-    --grey-track:#eceef1;
-    --green:#2e9e5b;
-    --shadow: 0 1px 3px rgba(20,20,30,0.06), 0 8px 24px rgba(20,20,30,0.05);
+  :root {
+    --navy: #0c447c;
+    --navy-dark: #042c53;
+    --surface: #ffffff;
+    --page-bg: #f4f5f7;
+    --border: #e2e5ea;
+    --text-primary: #1a1a1a;
+    --text-secondary: #5f6368;
+    --text-muted: #8a8f98;
+    --green-bg: #eaf3de;
+    --green-text: #27500a;
+    --red-bg: #fcebeb;
+    --red-text: #791f1f;
+    --radius: 10px;
   }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:var(--page-bg);
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
-    color:var(--ink);
-    padding:24px;
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--page-bg);
+    color: var(--text-primary);
+    padding: 20px;
   }
-  .card{
-    width:100%;
-    max-width:420px;
-    background:var(--card-bg);
-    border:1px solid var(--border);
-    border-radius:14px;
-    box-shadow:var(--shadow);
-    padding:20px 22px 16px;
+  .wrap { max-width: 1040px; margin: 0 auto; }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
   }
-  .card-head{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    margin-bottom:2px;
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-mark {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--navy); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px;
   }
-  .zone-name{
-    font-size:15px;
-    font-weight:600;
-    color:var(--ink);
+  .brand-text h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  .brand-text p { font-size: 12px; margin: 0; color: var(--text-secondary); }
+
+  .filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .filter-group { display: flex; flex-direction: column; gap: 2px; }
+  .filter-group label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; }
+  select {
+    font-size: 13px; padding: 6px 10px; border-radius: 8px;
+    border: 1px solid var(--border); background: #fff; color: var(--text-primary);
   }
-  .progress-badge{
-    text-align:right;
-    font-size:11px;
-    color:var(--muted);
-    display:flex;
-    align-items:center;
-    gap:6px;
+  .updated { font-size: 11px; color: var(--text-muted); }
+
+  .grid { display: grid; gap: 14px; margin-bottom: 14px; }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-2 { grid-template-columns: 1fr 1.4fr; }
+  .grid-2-even { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 800px) {
+    .grid-3, .grid-2, .grid-2-even { grid-template-columns: 1fr; }
   }
-  .dot{
-    width:8px;height:8px;border-radius:50%;
-    background:var(--red);
-    flex:none;
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
   }
-  .progress-value{
-    font-size:13px;
-    font-weight:700;
-    color:var(--red);
-    margin-top:2px;
+  .card h2 {
+    font-size: 13px; font-weight: 600; margin: 0 0 10px;
+    color: var(--text-primary);
   }
-  .gauge-row{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-top:4px;
+  .card .sub { font-size: 11px; color: var(--text-secondary); margin: 0 0 10px; }
+
+  .chart-box { position: relative; width: 100%; }
+  .legend-row { display: flex; gap: 14px; font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; }
+  .legend-row .dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; text-align: center; }
+  .stat-row .label { font-size: 10px; color: var(--text-secondary); margin: 0; }
+  .stat-row .value { font-size: 13px; font-weight: 600; margin: 2px 0 0; }
+  .up { color: var(--green-text); }
+  .down { color: var(--red-text); }
+
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 6px; margin-top: 8px;
   }
-  .side-stat{
-    text-align:center;
-    width:80px;
+  .badge.up { background: var(--green-bg); color: var(--green-text); }
+  .badge.down { background: var(--red-bg); color: var(--red-text); }
+
+  .bar-chart { display: flex; align-items: flex-end; gap: 16px; height: 120px; padding: 0 6px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; }
+  .bar-col .val { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+  .bar-col .bar { width: 55%; border-radius: 4px 4px 0 0; background: var(--navy); }
+  .bar-col .name { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+  .badge-center { text-align: center; }
+
+  .callout {
+    border-radius: 8px; padding: 10px 12px; min-width: 110px;
   }
-  .side-stat .pill{
-    display:inline-block;
-    padding:6px 14px;
-    border-radius:20px;
-    font-size:20px;
-    font-weight:700;
-  }
-  .pill.done{ background:var(--red); color:#fff; }
-  .pill.remaining{ background:var(--grey-track); color:#9a9fa6; }
-  .side-stat .pct{
-    font-size:11px;
-    font-weight:600;
-    margin-top:6px;
-  }
-  .pct.done-pct{ color:var(--red); }
-  .pct.remaining-pct{ color:#9a9fa6; }
-  .side-stat .label{
-    font-size:10px;
-    color:var(--muted);
-    margin-top:2px;
-  }
-  .gauge-wrap{
-    position:relative;
-    width:190px;
-    flex:none;
-  }
-  .gauge-center-label{
-    position:absolute;
-    left:50%;
-    top:62%;
-    transform:translate(-50%,-50%);
-    font-size:34px;
-    font-weight:700;
-    color:var(--ink);
-  }
-  .benchmark-label{
-    position:absolute;
-    font-size:12px;
-    font-weight:600;
-    color:var(--ink);
-  }
-  .stats-footer{
-    display:flex;
-    border-top:1px solid var(--border);
-    margin-top:14px;
-    padding-top:12px;
-  }
-  .stats-footer .col{
-    flex:1;
-    text-align:center;
-  }
-  .stats-footer .col + .col{
-    border-left:1px solid var(--border);
-  }
-  .stats-footer .val{
-    font-size:18px;
-    font-weight:700;
-  }
-  .stats-footer .lbl{
-    font-size:11px;
-    color:var(--muted);
-    margin-top:2px;
-  }
-  .delta{
-    font-size:11px;
-    font-weight:600;
-    color:var(--green);
-  }
-  .updated{
-    text-align:center;
-    font-size:10px;
-    color:#c3c6cb;
-    margin-top:12px;
-  }
+  .callout.down { background: var(--red-bg); }
+  .callout p { margin: 0; }
+  .callout .pct { font-size: 11px; }
+  .callout .val { font-size: 18px; font-weight: 700; margin: 2px 0; }
+  .callout .py { font-size: 11px; }
+
+  .monthly-wrap { display: flex; gap: 20px; align-items: flex-start; }
+  .monthly-wrap .chart-box { flex: 1; height: 200px; }
+
+  footer { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 10px; }
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="card" id="card">
-  <div class="card-head">
-    <div class="zone-name" id="zoneName">—</div>
-    <div>
-      <div class="progress-badge"><span class="dot"></span>Progress %</div>
-      <div class="progress-value" id="progressPercent">—</div>
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">PK</div>
+      <div class="brand-text">
+        <h1 id="dealerName">Loading…</h1>
+        <p id="dealerMeta"></p>
+      </div>
+    </div>
+    <div class="filters">
+      <div class="filter-group">
+        <label>Month</label>
+        <select id="monthFilter"><option>All</option></select>
+      </div>
+      <div class="filter-group">
+        <label>FY</label>
+        <select id="fyFilter"><option>2026-27</option><option>2025-26</option></select>
+      </div>
+      <span class="updated" id="updatedAt"></span>
     </div>
   </div>
 
-  <div class="gauge-row">
-    <div class="side-stat">
-      <div class="pill done" id="achieved">—</div>
-      <div class="pct done-pct" id="achievedPercent">—</div>
-      <div class="label">TG Completed</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <h2>Sales till date</h2>
+      <div class="chart-box" style="height:140px;">
+        <svg id="gaugeSvg" width="100%" height="140" viewBox="0 0 220 140">
+          <path d="M 20 120 A 90 90 0 0 1 200 120" fill="none" stroke="#e2e5ea" stroke-width="16" stroke-linecap="round"/>
+          <path id="gaugeArc" d="M 20 120 A 90 90 0 0 1 20 120" fill="none" stroke="#0f6e56" stroke-width="16" stroke-linecap="round"/>
+          <text id="gaugeValue" x="110" y="100" text-anchor="middle" style="font-size:26px; font-weight:700; fill:#1a1a1a;">0</text>
+          <text id="gaugeSub" x="110" y="122" text-anchor="middle" style="font-size:11px; fill:#5f6368;"></text>
+        </svg>
+      </div>
+      <div class="stat-row">
+        <div><p class="label">vs prev month</p><p class="value" id="vsPM"></p></div>
+        <div><p class="label">vs prev year</p><p class="value" id="vsPY"></p></div>
+        <div><p class="label">remaining</p><p class="value" id="remaining"></p></div>
+      </div>
     </div>
 
-    <div class="gauge-wrap">
-      <svg viewBox="0 0 200 120" width="190" height="114">
-        <path id="trackArc" d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="#eceef1" stroke-width="16" stroke-linecap="round"/>
-        <path id="fillArc" d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="#d5372e" stroke-width="16" stroke-linecap="round"/>
-        <line id="needleLine" x1="100" y1="100" x2="100" y2="30" stroke="#c98a2e" stroke-width="2"/>
-      </svg>
-      <div class="benchmark-label" id="benchmarkLabel">—</div>
-      <div class="gauge-center-label" id="targetLabel">—</div>
-    </div>
-
-    <div class="side-stat">
-      <div class="pill remaining" id="remaining">—</div>
-      <div class="pct remaining-pct" id="remainingPercent">—</div>
-      <div class="label">TG Remaining</div>
+    <div class="card">
+      <h2>Daily dispatch, last 30 days (MT)</h2>
+      <div class="chart-box" style="height:190px;">
+        <canvas id="last30Chart" role="img" aria-label="Line chart of daily dispatch over the last 30 days"></canvas>
+      </div>
     </div>
   </div>
 
-  <div class="stats-footer">
-    <div class="col">
-      <div class="val" id="salesTillDate">—</div>
-      <div class="lbl">Sales Till Date</div>
+  <div class="grid grid-2-even">
+    <div class="card">
+      <h2>Annual sales</h2>
+      <div class="bar-chart" id="annualBars"></div>
+      <div class="badge-center"><span class="badge" id="annualBadge"></span></div>
     </div>
-    <div class="col">
-      <div class="lbl">vs PM : <span id="vsPM">—</span></div>
-      <div class="lbl" style="margin-top:6px;">vs PY : <span id="vsPY">—</span></div>
-    </div>
-    <div class="col">
-      <div class="val" id="requiredRunRate">—</div>
-      <div class="lbl">Required Run Rate</div>
+    <div class="card">
+      <h2>Quarterly sales</h2>
+      <div class="bar-chart" id="quarterlyBars"></div>
+      <div class="badge-center"><span class="badge" id="quarterlyBadge"></span></div>
     </div>
   </div>
 
-  <div class="updated" id="updated"></div>
+  <div class="card">
+    <h2>Monthly sales</h2>
+    <div class="monthly-wrap">
+      <div class="callout down" id="monthlyCallout">
+        <p class="pct" id="monthlyPct"></p>
+        <p class="val" id="monthlyVal"></p>
+        <p class="py" id="monthlyPy"></p>
+      </div>
+      <div class="chart-box">
+        <canvas id="monthlyChart" role="img" aria-label="Line chart of monthly sales"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <footer>Peekay Rolling Mills (P) Ltd &middot; auto-refreshed daily via Power Automate</footer>
 </div>
 
 <script>
-async function loadData(){
-  try{
-  const res = await fetch('data.json?ts=' + Date.now());
-  const d = await res.json();
-  render(d);   // ← if this throws, it falls into the same catch below
-}catch(e){
-  document.getElementById('zoneName').textContent = 'Unable to load data';
-    console.error(e);
-  }
+const NAVY = '#0c447c';
+const RED = '#e34948';
+const GRAY = '#b4b2a9';
+
+function fmtPct(n) {
+  const sign = n > 0 ? '&#9650; ' : n < 0 ? '&#9660; ' : '';
+  return sign + Math.abs(n).toFixed(1) + '%';
+}
+function pctClass(n) { return n >= 0 ? 'up' : 'down'; }
+
+function polarToCartesian(cx, cy, r, angleDeg) {
+  const rad = (angleDeg - 180) * Math.PI / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+function drawGaugeArc(pathEl, pct) {
+  const cx = 110, cy = 120, r = 90;
+  const angle = Math.min(Math.max(pct, 0), 100) / 100 * 180;
+  const end = polarToCartesian(cx, cy, r, angle);
+  const largeArc = angle > 180 ? 1 : 0;
+  pathEl.setAttribute('d', `M 20 120 A ${r} ${r} 0 ${largeArc} 1 ${end.x.toFixed(1)} ${end.y.toFixed(1)}`);
 }
 
-function render(d){
-  document.getElementById('zoneName').textContent = d.zone;
-  document.getElementById('progressPercent').textContent = Number(d.progressPercent).toFixed(2) + '%';
-
-  document.getElementById('achieved').textContent = d.achieved;
-  document.getElementById('achievedPercent').textContent = Number(d.achievedPercent).toFixed(2) + '%';
-
-  document.getElementById('remaining').textContent = d.remaining;
-  document.getElementById('remainingPercent').textContent = Number(d.remainingPercent).toFixed(2) + '%';
-
-  document.getElementById('targetLabel').textContent = d.target;
-  document.getElementById('salesTillDate').textContent = d.salesTillDate;
-  document.getElementById('requiredRunRate').textContent = Number(d.requiredRunRate).toFixed(2);
-
-  const pmUp = d.vsPM.pct >= 0;
-  const pyUp = d.vsPY.pct >= 0;
-  document.getElementById('vsPM').innerHTML = d.vsPM.value + ' <span class="delta">(' + (pmUp?'▲':'▼') + ' ' + Math.abs(d.vsPM.pct) + '%)</span>';
-  document.getElementById('vsPY').innerHTML = d.vsPY.value + ' <span class="delta">(' + (pyUp?'▲':'▼') + ' ' + Math.abs(d.vsPY.pct) + '%)</span>';
-
-  // ---- Gauge geometry ----
-  const cx = 100, cy = 100, r = 80;
-  const trackPath = document.getElementById('trackArc');
-  const fillPath = document.getElementById('fillArc');
-  const half = Math.PI * r; // length of the semicircle
-
-  const achievedFraction = Math.min(d.achieved / d.target, 1);
-  fillPath.setAttribute('stroke-dasharray', (achievedFraction*half) + ' ' + half);
-
-  // needle / benchmark marker pointing to benchmarkValue on the 0..target scale
-  const benchmarkFraction = Math.min(d.benchmarkValue / d.target, 1);
-  const angleDeg = 180 - (benchmarkFraction * 180); // 180 = left(0), 0 = right(target)
-  const angleRad = angleDeg * Math.PI / 180;
-  const needleLen = 62;
-  const tipX = cx + needleLen * Math.cos(angleRad);
-  const tipY = cy - needleLen * Math.sin(angleRad);
-  const needle = document.getElementById('needleLine');
-  needle.setAttribute('x2', tipX);
-  needle.setAttribute('y2', tipY);
-
-  // benchmark label position, just outside the tip
-  const labelX = cx + (needleLen+14) * Math.cos(angleRad);
-  const labelY = cy - (needleLen+14) * Math.sin(angleRad);
-  const wrapWidth = 190, wrapHeight = 114;
-  const scaleX = wrapWidth/200, scaleY = wrapHeight/120;
-  const lbl = document.getElementById('benchmarkLabel');
-  lbl.textContent = d.benchmarkValue;
-  lbl.style.left = (labelX*scaleX) + 'px';
-  lbl.style.top = (labelY*scaleY) + 'px';
-  lbl.style.transform = 'translate(-50%,-50%)';
-
-  if(d.lastUpdated){
-    const dt = new Date(d.lastUpdated);
-    document.getElementById('updated').textContent = 'Last updated: ' + dt.toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
-  }
+function renderBars(containerId, items, badgeId, badgeValue) {
+  const container = document.getElementById(containerId);
+  const max = Math.max(...items.map(i => i.value));
+  container.innerHTML = items.map(item => {
+    const heightPct = Math.max((item.value / max) * 100, 6);
+    return `
+      <div class="bar-col">
+        <span class="val">${item.value.toLocaleString(undefined, {maximumFractionDigits: 2})}</span>
+        <div class="bar" style="height:${heightPct}%;"></div>
+        <span class="name">${item.label}</span>
+      </div>`;
+  }).join('');
+  const badge = document.getElementById(badgeId);
+  badge.textContent = fmtPctText(badgeValue);
+  badge.className = 'badge ' + (badgeValue >= 0 ? 'up' : 'down');
+}
+function fmtPctText(n) {
+  const arrow = n >= 0 ? '\u2191' : '\u2193';
+  return `${arrow} ${Math.abs(n).toFixed(1)}%`;
 }
 
-loadData();
+fetch('data.json')
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById('dealerName').textContent = data.dealerName;
+    document.getElementById('dealerMeta').textContent = `${data.zone} \u00b7 FY ${data.fy}`;
+    document.getElementById('updatedAt').textContent = `Updated ${data.updatedAt}`;
+    document.getElementById('fyFilter').value = data.fy;
+
+    drawGaugeArc(document.getElementById('gaugeArc'), data.achievedPercent);
+    document.getElementById('gaugeValue').textContent = data.achieved;
+    document.getElementById('gaugeSub').textContent = `of ${data.benchmarkValue} MT target \u00b7 ${data.achievedPercent}%`;
+
+    const vsPM = document.getElementById('vsPM');
+    vsPM.innerHTML = fmtPct(data.vsPM);
+    vsPM.className = 'value ' + pctClass(data.vsPM);
+
+    const vsPY = document.getElementById('vsPY');
+    vsPY.innerHTML = fmtPct(data.vsPY);
+    vsPY.className = 'value ' + pctClass(data.vsPY);
+
+    document.getElementById('remaining').textContent = data.remaining + '%';
+
+    renderBars('annualBars', data.annualSales, 'annualBadge', data.annualVsPY);
+    renderBars('quarterlyBars', data.quarterlySales, 'quarterlyBadge', data.quarterlyVsPrev);
+
+    const lastMonth = data.monthlySales[data.monthlySales.length - 1];
+    document.getElementById('monthlyPct').innerHTML = fmtPct(lastMonth.vsPY);
+    document.getElementById('monthlyVal').textContent = lastMonth.value;
+    document.getElementById('monthlyPy').textContent = `PY: ${lastMonth.py} (${fmtPctText(lastMonth.vsPY)})`;
+    document.getElementById('monthlyCallout').className = 'callout ' + (lastMonth.vsPY >= 0 ? '' : 'down');
+
+    new Chart(document.getElementById('last30Chart'), {
+      type: 'line',
+      data: {
+        labels: data.dailyLast30.labels,
+        datasets: [{ data: data.dailyLast30.values, borderColor: NAVY, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, tension: 0.3 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { autoSkip: true, maxTicksLimit: 6, color: '#8a8f98', font: { size: 10 } }, grid: { display: false } },
+          y: { ticks: { color: '#8a8f98', font: { size: 10 } }, grid: { color: '#eef0f3' } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('monthlyChart'), {
+      type: 'line',
+      data: {
+        labels: data.monthlySales.map(m => m.label),
+        datasets: [{ data: data.monthlySales.map(m => m.value), borderColor: NAVY, backgroundColor: 'transparent', borderWidth: 2, tension: 0.35, pointRadius: 3, pointBackgroundColor: NAVY }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#8a8f98', font: { size: 10 } } },
+          y: { grid: { color: '#eef0f3' }, ticks: { color: '#8a8f98', font: { size: 10 } } }
+        }
+      }
+    });
+  })
+  .catch(err => {
+    document.getElementById('dealerName').textContent = 'Could not load data.json';
+    console.error(err);
+  });
 </script>
-
 </body>
 </html>

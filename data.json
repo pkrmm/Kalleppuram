@@ -1,43 +1,21 @@
 {
-  "dealerName": "Kalleppuram",
-  "zone": "Kozhikode",
-  "fy": "2026-27",
-  "month": "Sep 26",
-  "updatedAt": "2026-09-08 08:00",
-
-  "achieved": 118,
-  "benchmarkValue": 600,
-  "achievedPercent": 19.7,
-  "remaining": 10.25,
-  "vsPM": 90,
-  "vsPY": 18,
-  "requiredRunRate": 24,
-  "workingDaysDone": 6,
-  "workingDaysTotal": 26,
-
-  "dailyLast30": {
-    "labels": ["8/10","8/11","8/12","8/13","8/14","8/15","8/16","8/17","8/18","8/19","8/20","8/21","8/22","8/23","8/24","8/25","8/26","8/27","8/28","8/29","8/30","8/31","9/1","9/2","9/3","9/4","9/5","9/6","9/7","9/8"],
-    "values": [14,18,15,22,19,25,21,28,24,20,26,23,19,25,22,18,24,27,23,20,26,30,27,24,29,33,30,28,32,36]
+  "achieved": 87.57,
+  "achievedPercent": 14.595,
+  "benchmarkValue": 69.2307692307692,
+  "lastUpdated": "2026-09-08T10:45:01.8709164Z",
+  "progressPercent": 0,
+  "remaining": 512.43,
+  "remainingPercent": 85.405,
+  "requiredRunRate": 22.2795652173913,
+  "salesTillDate": 87.57,
+  "target": 600,
+  "vsPM": {
+    "pct": 209.216101694915,
+    "value": 28.32
   },
-
-  "annualSales": [
-    { "label": "2025-26", "value": 4512.72 },
-    { "label": "2026-27", "value": 1011.59 }
-  ],
-  "annualVsPY": -75.6,
-
-  "quarterlySales": [
-    { "label": "Q1", "value": 477.97 },
-    { "label": "Q2", "value": 535.83 }
-  ],
-  "quarterlyVsPrev": 12.1,
-
-  "monthlySales": [
-    { "label": "Apr 26", "value": 165, "py": 365, "vsPY": -55 },
-    { "label": "May 26", "value": 240, "py": 210, "vsPY": 14 },
-    { "label": "Jun 26", "value": 180, "py": 195, "vsPY": -8 },
-    { "label": "Jul 26", "value": 175, "py": 160, "vsPY": 9 },
-    { "label": "Aug 26", "value": 255, "py": 230, "vsPY": 11 },
-    { "label": "Sep 26", "value": 190, "py": 200, "vsPY": -5 }
-  ]
+  "vsPY": {
+    "pct": 163.368421052632,
+    "value": 33.25
+  },
+  "zone": "Kalleppuram"
 }

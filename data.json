@@ -1,20 +1,20 @@
 {
-  "achieved": 125.8,
-  "achievedPercent": 20.9666666666667,
-  "benchmarkValue": 96,
-  "lastUpdated": "2026-10-15T02:45:01.9476836Z",
+  "achieved": 150.93,
+  "achievedPercent": 25.155,
+  "benchmarkValue": 120,
+  "lastUpdated": "2026-10-15T03:45:01.4550531Z",
   "progressPercent": 0,
-  "remaining": 474.2,
-  "remainingPercent": 79.0333333333333,
-  "requiredRunRate": 22.5809523809524,
-  "salesTillDate": 125.8,
+  "remaining": 449.07,
+  "remainingPercent": 74.845,
+  "requiredRunRate": 22.4535,
+  "salesTillDate": 150.93,
   "target": 600,
   "vsPM": {
-    "pct": -14.1941204556306,
+    "pct": 2.94659300184162,
     "value": 146.61
   },
   "vsPY": {
-    "pct": -10.805445263755,
+    "pct": 7.01219512195123,
     "value": 141.04
   },
   "zone": "Kalleppuram"

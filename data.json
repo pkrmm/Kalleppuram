@@ -2,7 +2,7 @@
   "achieved": 247.82,
   "achievedPercent": 41.3033333333333,
   "benchmarkValue": 216,
-  "lastUpdated": "2026-10-24T11:45:01.5551480Z",
+  "lastUpdated": "2026-10-24T12:45:01.9927718Z",
   "progressPercent": 0,
   "remaining": 352.18,
   "remainingPercent": 58.6966666666667,
@@ -10,11 +10,11 @@
   "salesTillDate": 247.82,
   "target": 600,
   "vsPM": {
-    "pct": 9.41280353200884,
+    "pct": 9.41280353200887,
     "value": 226.5
   },
   "vsPY": {
-    "pct": 0.340108510810582,
+    "pct": 0.340108510810605,
     "value": 246.98
   },
   "zone": "Kalleppuram"

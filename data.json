@@ -2,7 +2,7 @@
   "achieved": 302.34,
   "achievedPercent": 50.39,
   "benchmarkValue": 360,
-  "lastUpdated": "2026-11-27T19:45:01.8558424Z",
+  "lastUpdated": "2026-11-27T20:45:01.1470036Z",
   "progressPercent": 0,
   "remaining": 297.66,
   "remainingPercent": 49.61,
@@ -14,7 +14,7 @@
     "value": 302.15
   },
   "vsPY": {
-    "pct": -1.02465053851442,
+    "pct": -1.0246505385144,
     "value": 305.47
   },
   "zone": "Kalleppuram"

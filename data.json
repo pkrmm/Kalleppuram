@@ -2,7 +2,7 @@
   "achieved": 351.7,
   "achievedPercent": 58.6166666666667,
   "benchmarkValue": 384,
-  "lastUpdated": "2026-11-28T13:45:01.2445057Z",
+  "lastUpdated": "2026-11-28T14:45:01.7362986Z",
   "progressPercent": 0,
   "remaining": 248.3,
   "remainingPercent": 41.3833333333333,
@@ -10,7 +10,7 @@
   "salesTillDate": 351.7,
   "target": 600,
   "vsPM": {
-    "pct": 11.9101409615936,
+    "pct": 11.9101409615935,
     "value": 314.27
   },
   "vsPY": {
